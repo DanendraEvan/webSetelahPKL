@@ -12,11 +12,13 @@ import TransactionHistory from "./components/pages/transaction.jsx";
 import PaymentConfirmation from "./components/pages/paymentConfirm.jsx";
 import ProductDetail from "./components/pages/productDetail.jsx";
 import AccountPage from "./components/pages/accountPage.jsx";
+import Home from "./components/pages/home.jsx";
+
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LoginPage />,
+    element: <Home/>,
     errorElement: <ErrorPage />,
   },
   {
