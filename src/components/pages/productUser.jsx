@@ -173,65 +173,47 @@ const Product = () => {
   };
 
   const handleCheckout = async () => {
-    if (cart.length === 0) {
-      window.alert("Keranjang belanja Anda kosong.");
-      return;
-    }
+  if (cart.length === 0) {
+    alert("Keranjang kosong");
+    return;
+  }
 
-    setIsCheckingOut(true);
-    
+  setIsCheckingOut(true);
+
+  try {
     const itemsSnapshot = cart.map(item => {
-        const prod = products.find(p => p.id === item.id);
-        return {
-            product_id: item.id,
-            title: prod ? prod.title : 'Produk tidak ditemukan',
-            quantity: item.qty,
-            price_at_order: prod ? prod.price : 0
-        };
+      const prod = products.find(p => p.id === item.id);
+      return {
+        productId: item.id,
+        title: prod?.title,
+        price: prod?.price,
+        qty: item.qty
+      };
     });
 
-    const checkoutData = {
-      userId: getUserId(), 
-      itemsSnapshot: itemsSnapshot, 
-      total: total,
-    };
+    // Simpan transaksi ke Firestore
+    const docRef = await addDoc(collection(db, "riwayat"), {
+      userEmail,
+      userId: getUserId(),
+      items: itemsSnapshot,
+      total,
+      status: "Menunggu Pembayaran",
+      createdAt: serverTimestamp()
+    });
 
-    try {
-      const res = await fetch("http://localhost:5000/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(checkoutData),
-      });
+    setCart([]);
 
-      const data = await res.json();
+    // Redirect ke halaman payment
+    navigate(`/payment/${docRef.id}`);
 
-      if (res.ok) {
-        // Simpan ke Firestore
-        await addDoc(collection(db, "riwayat"), {
-          userEmail: userEmail,
-          userId: getUserId(),
-          transactionId: data.transactionId,
-          items: itemsSnapshot,
-          total: total,
-          createdAt: serverTimestamp(),
-          status: "Menunggu Pembayaran"
-        });
-      
-        window.alert(`Pesanan berhasil dibuat! ID Transaksi: ${data.transactionId}. Lanjutkan ke pembayaran.`);
-        setCart([]); 
-        navigate(`/payment/${data.transactionId}`); 
-      }
-      else {
-        window.alert(`Checkout Gagal: ${data.error || "Terjadi kesalahan server."}`);
-      }
+  } catch (err) {
+    console.error(err);
+    alert("Checkout gagal");
+  } finally {
+    setIsCheckingOut(false);
+  }
+};
 
-    } catch (error) {
-      console.error("Checkout fetch error:", error);
-      window.alert("Terjadi error koneksi saat checkout. Pastikan server berjalan!");
-    } finally {
-      setIsCheckingOut(false);
-    }
-  };
 
   const formatPrice = (p) =>
     new Intl.NumberFormat('id-ID', {

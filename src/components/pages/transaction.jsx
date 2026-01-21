@@ -91,7 +91,7 @@ const TransactionHistory = () => {
         <h1 className="text-2xl font-bold">Riwayat Transaksi Pengguna ID: {userId}</h1>
         <Button 
             className="bg-purple-600 hover:bg-purple-700" 
-            onClick={() => navigate("/product")}
+            onClick={() => navigate("/productUser")}
         >
             Kembali ke Toko
         </Button>
