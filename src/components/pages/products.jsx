@@ -1,5 +1,9 @@
 import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
+import { db } from "../../firebase"; 
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+
+
 
 // =========================================================================
 // --- DEFINISI KOMPONEN PEMBANTU ---
@@ -114,25 +118,26 @@ const Product = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setIsLoading(true);
-    setError(null);
-    fetch("http://localhost:5000/api/products")
-      .then((res) => {
-        if (!res.ok) {
-            throw new Error(`Server error: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const querySnapshot = await getDocs(collection(db, "barang"));
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
         setProducts(data);
+      } catch (err) {
+        console.error(err);
+        setError("Gagal memuat data dari Firestore");
+      } finally {
         setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching products:", err);
-        setError("Gagal memuat produk. Pastikan server (port 5000) berjalan dan database terkoneksi.");
-        setIsLoading(false);
-      });
+      }
+    };
+  
+    fetchProducts();
   }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("email");
