@@ -10,6 +10,8 @@ import ProductUser from "./components/pages/productUser.jsx";
 import AddProduct from "./components/pages/addProduct.jsx";
 import TransactionHistory from "./components/pages/transaction.jsx";
 import PaymentConfirmation from "./components/pages/paymentConfirm.jsx";
+import ProductDetail from "./components/pages/productDetail.jsx";
+import AccountPage from "./components/pages/accountPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +44,10 @@ const router = createBrowserRouter([
     path: "/transactions",
     element: <TransactionHistory />,
   },
+  {
+    path:"/products/:id",
+    element:<ProductDetail />
+  },
   // ==========================================================
   // ENDPOINT BARU UNTUK KONFIRMASI PEMBAYARAN
   // Menggunakan ':transactionId' agar bisa membaca ID dari URL
@@ -50,6 +56,10 @@ const router = createBrowserRouter([
     path: "/payment/:transactionId",
     element: <PaymentConfirmation />,
   },
+  {
+    path: "/account",
+    element: <AccountPage />,
+  }
   // ==========================================================
 ]);
 

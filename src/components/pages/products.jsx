@@ -3,6 +3,8 @@ import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase"; 
 import { collection, getDocs, deleteDoc, doc, addDoc, serverTimestamp } from "firebase/firestore";
+import { AuthProvider } from "../../../context/AuthContext";
+import AdminRoute from '../../../middleware/AdminRoute';
 
 
 
@@ -22,19 +24,23 @@ const Button = ({ children, className = "bg-blue-600", onClick, type = "button",
   );
 };
 
-const Header = ({ images }) => {
+const Header = ({ images, onClick }) => {
   return (
-    <a href="#" className="group block overflow-hidden rounded-t-xl">
+    <div
+      className="group block overflow-hidden rounded-t-xl cursor-pointer"
+      onClick={onClick}
+    >
       <img
         src={images}
         alt="product"
         className="p-3 sm:p-4 rounded-t-xl object-cover w-full h-40 sm:h-48 transition-transform duration-500 group-hover:scale-110"
         onError={(e) => {
-            e.target.onerror = null; 
-            e.target.src="https://placehold.co/400x300/e0e7ff/3730a3?text=No+Image";
+          e.target.onerror = null;
+          e.target.src =
+            "https://placehold.co/400x300/e0e7ff/3730a3?text=No+Image";
         }}
       />
-    </a>
+    </div>
   );
 };
 
@@ -69,12 +75,7 @@ const Footer = ({ price, handleAddToCart, id, handleDeleteProduct }) => {
         >
           🗑️ Hapus
         </button>
-        <button
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs sm:text-sm py-2.5 px-3 transition-all duration-300 shadow-md hover:shadow-lg border-2 border-blue-700 hover:border-blue-800 transform hover:-translate-y-0.5"
-          onClick={() => handleAddToCart(id)}
-        >
-          🛒 Keranjang
-        </button>
+  
       </div>
     </div>
   );
@@ -265,6 +266,8 @@ const Product = () => {
   }, [cart, products]);
 
   return (
+    <AuthProvider>
+    <AdminRoute>
     <Fragment>
       {/* Header dengan gradien dan shadow yang lebih baik */}
       <header className="flex flex-col sm:flex-row justify-between items-center bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white px-4 py-4 sm:px-6 md:px-10 shadow-2xl gap-3 sm:gap-4 sticky top-0 z-40 backdrop-blur-sm">
@@ -332,12 +335,18 @@ const Product = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {!isLoading && !error && products.length > 0 && products.map((product, index) => (
-                <div 
-                  key={product.id} 
-                  className="w-full bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-2xl flex flex-col justify-between transform transition-all duration-500 hover:scale-105 hover:-rotate-1 animate-fadeIn"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                <div
+                    key={product.id}
+                    onClick={() => navigate(`/products/${product.id}`)}
+                    className="w-full bg-white border border-gray-200 rounded-xl shadow-lg cursor-pointer
+                              hover:shadow-2xl flex flex-col justify-between transform transition-all
+                              duration-500 hover:scale-105 hover:-rotate-1 animate-fadeIn"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <Header images={product.image || images} />
+                  <Header
+                    images={product.image || images}
+                    onClick={() => navigate(`/products/${product.id}`)}
+                  />
                   <Body title={product.title}>
                     {product.description || "Deskripsi produk tidak tersedia."}
                   </Body>
@@ -652,6 +661,8 @@ const Product = () => {
 )}
 
     </Fragment>
+    </AdminRoute>
+    </AuthProvider>
   );
 };
 

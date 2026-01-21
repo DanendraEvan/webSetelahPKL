@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../../firebase"; // sesuaikan path
+import { auth } from "../../firebase";
+import GuestRoute from "../../../middleware/GuestRoute";
 
 const FormRegister = () => {
   const [formData, setFormData] = useState({
@@ -9,8 +10,10 @@ const FormRegister = () => {
     password: "",
     confirmPassword: ""
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,11 +21,13 @@ const FormRegister = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
 
     const { fullName, email, password, confirmPassword } = formData;
 
+    // Validasi password
     if (password !== confirmPassword) {
-      alert("Password dan konfirmasi password tidak cocok!");
+      setErrorMessage("Password dan konfirmasi password tidak sama.");
       return;
     }
 
@@ -38,84 +43,103 @@ const FormRegister = () => {
         displayName: fullName
       });
 
-      alert("Registrasi berhasil!");
       window.location.href = "/login";
     } catch (error) {
-      alert("Registrasi gagal: " + error.message);
+      if (error.code === "auth/email-already-in-use") {
+        setErrorMessage("Email sudah terdaftar.");
+      } else if (error.code === "auth/weak-password") {
+        setErrorMessage("Password terlalu lemah (minimal 6 karakter).");
+      } else {
+        setErrorMessage("Registrasi gagal. Silakan coba lagi.");
+      }
     }
   };
 
   return (
-    <form onSubmit={handleRegister} className="space-y-5">
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-        <input
-          name="fullName"
-          type="text"
-          placeholder="Masukkan nama Anda"
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700"
-          required
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-          name="email"
-          type="email"
-          placeholder="Masukkan email Anda"
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700"
-          required
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <div className="relative">
+    <GuestRoute>
+      {/* NOTIFIKASI ERROR */}
+      {errorMessage && (
+        <div className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
+      <form onSubmit={handleRegister} className="space-y-5">
+
+        {/* EMAIL */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
           <input
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700 pr-16"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700"
             required
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-blue-600 hover:text-blue-800"
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
         </div>
-      </div>
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
-        <div className="relative">
-          <input
-            name="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="••••••••"
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700 pr-16"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword((prev) => !prev)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-blue-600 hover:text-blue-800"
-          >
-            {showConfirmPassword ? "Hide" : "Show"}
-          </button>
+
+        {/* PASSWORD */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700 pr-16"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-blue-600 hover:text-blue-800"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
         </div>
-      </div>
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition duration-200 shadow-md"
-      >
-        Daftar
-      </button>
-    </form>
+
+        {/* CONFIRM PASSWORD */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Confirm Password
+          </label>
+          <div className="relative">
+            <input
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="••••••••"
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-700 pr-16"
+              required
+            />
+            <button
+              type="button"
+              onClick={() =>
+                setShowConfirmPassword((prev) => !prev)
+              }
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-blue-600 hover:text-blue-800"
+            >
+              {showConfirmPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+        </div>
+
+        {/* BUTTON */}
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition duration-200 shadow-md"
+        >
+          Register
+        </button>
+      </form>
+    </GuestRoute>
   );
 };
 
