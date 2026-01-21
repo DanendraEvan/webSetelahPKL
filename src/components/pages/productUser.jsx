@@ -202,6 +202,7 @@ const Product = () => {
     });
 
     setCart([]);
+    console.log(docRef.id);
 
     // Redirect ke halaman payment
     navigate(`/payment/${docRef.id}`);

@@ -16,24 +16,36 @@ const FormLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Login khusus admin (tanpa Firebase)
+    if (formData.email === "admin@gmail.com" && formData.password === "admin123") {
+      localStorage.setItem("email", "admin@gmail.com");
+      localStorage.setItem("role", "admin");
+      alert("Login Admin berhasil!");
+      window.location.href = "/product"; // halaman admin
+      return;
+    }
+  
+    // Login normal via Firebase
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         formData.email,
         formData.password
       );
-
+  
       const user = userCredential.user;
       localStorage.setItem("email", user.email);
       localStorage.setItem("uid", user.uid);
-
+      localStorage.setItem("role", "user");
+  
       alert("Login berhasil!");
       window.location.href = "/productUser";
     } catch (error) {
       alert("Login gagal: " + error.message);
     }
   };
-
+  
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
