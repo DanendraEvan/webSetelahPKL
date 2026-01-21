@@ -148,7 +148,7 @@ const TransactionHistory = () => {
                                         {(t.items || []).map((item, index) => (
 
                                             <li key={index} className="text-xs">
-                                                <span className="font-semibold">{item.title}</span> ({item.quantity}x) - {formatPrice(item.price_at_order)}
+                                                <span className="font-semibold">{item.title}</span> ({item.qty}x) - {formatPrice(item.price)}
                                             </li>
                                         ))}
                                     </ul>
