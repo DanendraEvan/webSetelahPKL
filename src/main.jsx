@@ -15,12 +15,14 @@ import AccountPage from "./components/pages/accountPage.jsx";
 import Home from "./components/pages/home.jsx";
 
 
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home/>,
     errorElement: <ErrorPage />,
   },
+
   {
     path: "/login",
     element: <LoginPage />,

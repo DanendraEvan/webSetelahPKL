@@ -304,20 +304,7 @@ const ProductUser = () => {
 
               {/* Main Navigation Tabs */}
               <div className="flex justify-center mb-8 px-4">
-                <div className="inline-flex rounded-2xl bg-black/30 backdrop-blur-xl p-1 border border-white/20 shadow-2xl">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategoryClick(category.id)}
-                      className={`px-4 sm:px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-2 ${activeCategory === category.id 
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg' 
-                        : 'text-white hover:bg-white/15'}`}
-                    >
-                      <span className="text-xl">{category.emoji}</span>
-                      <span className="font-semibold text-sm sm:text-base">{category.label}</span>
-                    </button>
-                  ))}
-                </div>
+               
               </div>
 
               {/* Hero Text */}
